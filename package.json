@@ -1,0 +1,14 @@
+{
+  "name": "jinhaitun-pages",
+  "version": "1.0.0",
+  "private": true,
+  "description": "金海豚奖作品热度追踪 · Git Pages 静态看板",
+  "scripts": {
+    "crawl": "node scripts/crawl.js",
+    "build": "node scripts/build.js",
+    "deploy:data": "node scripts/crawl.js && node scripts/build.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12"
+  }
+}

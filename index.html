@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>金海豚游戏开发大赛 · 热门作品看板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    /* 金海豚看板专属：总榜全宽表格 & KPI */
+    .total-list { margin-top: 20px; }
+    .kpi.total .value { color: var(--accent-2); }
+    .kpi.pc-count .value { color: var(--pc); }
+    .kpi.mobile-count .value { color: var(--mobile); }
+    .kpi.zan .value { color: var(--accent); }
+    .thumb-cell {
+      width: 44px; height: 44px; border-radius: 8px; overflow: hidden;
+      background: rgba(255,255,255,0.06); flex-shrink: 0;
+    }
+    .thumb-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .game-cell { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+    .tag-inline {
+      display: inline-block; font-size: 0.7rem; padding: 1px 7px; border-radius: 4px;
+      background: rgba(62,207,142,0.14); color: var(--accent); margin-right: 4px;
+    }
+    .zan-cell { font-weight: 700; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+    .rank-top3 { color: #ffd700; font-weight: 800; }
+    #trendTitle { font-family: var(--display); }
+    .trend-controls { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+    .trend-controls input { min-width: 240px; }
+    .trend-controls button {
+      border: 1px solid rgba(108,182,255,0.45); background: rgba(108,182,255,0.10);
+      color: var(--pc); border-radius: 9px; padding: 9px 14px;
+      font: 600 0.85rem var(--font); cursor: pointer; white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div>
+          <h1>金海豚 · 游戏开发大赛热门看板</h1>
+          <p class="sub">好游快爆 × 金海豚奖 · 试玩投票排行 · 全量作品 · 30分钟自动采集</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="status" id="statusPill">连接中…</div>
+        <button type="button" class="btn" id="btnVote">给把把博弈王投票</button>
+      </div>
+    </header>
+
+    <!-- KPI 总览 -->
+    <section class="hero-panel">
+      <div class="hero-head">
+        <div>
+          <p class="eyebrow">数据总览</p>
+          <h2>参赛作品</h2>
+          <p class="muted">全部作品热度实时排行</p>
+        </div>
+        <div class="kpi-row" id="overviewKpis"></div>
+      </div>
+    </section>
+
+    <!-- 作品热度走势 -->
+    <section class="toolbar card" id="trendbar">
+      <div class="search-box" style="flex:1">
+        <label for="trendSearch">查看作品热度走势</label>
+        <input id="trendSearch" type="search" placeholder="输入作品名（默认榜首）" />
+      </div>
+      <div class="trend-controls">
+        <button type="button" id="btnViewTrend">查看走势</button>
+      </div>
+    </section>
+    <section class="card chart-card" style="margin-bottom:18px">
+      <div class="card-head">
+        <h3 id="trendTitle">作品热度走势</h3>
+        <span class="chip">整点快照趋势</span>
+      </div>
+      <div class="chart-wrap" style="height:300px">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 工具栏：搜索 + 类型筛选 + 排序 -->
+    <section class="toolbar card">
+      <div class="search-box">
+        <label for="searchInput">搜索</label>
+        <input id="searchInput" type="search" placeholder="作品名 / 简介 / 游戏ID" />
+      </div>
+      <div class="filters">
+        <label>类型</label>
+        <select id="typeSelect">
+          <option value="all">全部类型</option>
+          <option value="PC游戏">PC游戏</option>
+          <option value="手游">手游</option>
+          <option value="学生团队">学生团队</option>
+          <option value="海峡之星">海峡之星</option>
+          <option value="入围游戏">入围游戏</option>
+        </select>
+      </div>
+      <div class="filters">
+        <label>排序</label>
+        <select id="sortSelect">
+          <option value="zan:desc">热度 ↓</option>
+          <option value="zan:asc">热度 ↑</option>
+          <option value="name:asc">名称 A→Z</option>
+          <option value="name:desc">名称 Z→A</option>
+        </select>
+      </div>
+      <div class="snap-info" id="snapInfo">尚无快照</div>
+    </section>
+
+    <!-- 全量榜单 -->
+    <section class="total-list">
+      <article class="card list-card">
+        <div class="card-head">
+          <h3>🏆 作品数据榜单</h3>
+          <span class="chip" id="totalCount">0 部</span>
+        </div>
+        <div class="table-wrap" style="max-height:700px">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>作品</th>
+                <th>类型</th>
+                <th class="num">热度</th>
+                <th class="num">环比</th>
+              </tr>
+            </thead>
+            <tbody id="totalBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <span>本地服务 · JSON 持久化 · 每30分钟自动爬取</span>
+      <span></span>
+    </footer>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
