@@ -524,13 +524,9 @@ $("#btnVote").addEventListener("click", () => {
   const url = "https://act.3839.com/n/hykb/jinhaitun/phase1/pc/index.php";
   window.open(url, "_blank");
   setStatus("已打开投票页 · 登录后即可为把把博弈王投票", "ok");
-  // 点击埋点（记录投票按钮点击次数）
+  // 点击埋点（记录投票按钮点击次数，duckdns + IP 双发，服务器限频去重）
   try {
-    fetch("https://jhtstats.duckdns.org/click", {
-      method: "POST",
-      body: JSON.stringify({ action: "vote", btn: "btnVote", ref: document.referrer || "", path: location.pathname }),
-      headers: { "Content-Type": "text/plain" }, keepalive: true,
-    }).catch(() => {});
+    jhtPost("/click", { action: "vote", btn: "btnVote", ref: document.referrer || "", path: location.pathname });
   } catch (e) {}
 });
 // 时间范围
@@ -556,11 +552,20 @@ setInterval(() => refreshAll().catch(console.error), 60_000);
 
 // —— 访问打点（方案B 统计服务）——
 // 用 fetch + text/plain：text/plain 是“简单请求”，跨域不触发预检(OPTIONS)，最稳
+// 双 URL（duckdns 域名 + IP 直连）双保险：走 IP 的用户需在浏览器信任一次 duckdns 证书
+// 服务器对同 IP 有 5 秒限频，双发不会重复计数
+var JHT_STATS_URLS = ["https://jhtstats.duckdns.org", "https://129.211.224.82"];
+function jhtPost(path, payload) {
+  const body = JSON.stringify(payload);
+  var i;
+  for (i = 0; i < JHT_STATS_URLS.length; i++) {
+    try {
+      fetch(JHT_STATS_URLS[i] + path, { method: "POST", body: body, headers: { "Content-Type": "text/plain" }, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+}
 (function () {
   try {
-    const payload = { ua: navigator.userAgent, ref: document.referrer || "", path: location.pathname };
-    const url = "https://jhtstats.duckdns.org/hit";
-    // 主路径：fetch + text/plain（简单请求，跨域直发，避免预检）
-    fetch(url, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain" }, keepalive: true }).catch(() => {});
+    jhtPost("/hit", { ua: navigator.userAgent, ref: document.referrer || "", path: location.pathname });
   } catch (e) { /* 打点失败不影响页面 */ }
 })();
