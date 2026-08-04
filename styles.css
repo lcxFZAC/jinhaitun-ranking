@@ -673,3 +673,16 @@ table { font-size: 0.95rem; }
 }
 .rec-card:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 [data-theme="light"] .rec-card::after { background: rgba(255,255,255,0.96); color: #9a6a00; border-color: rgba(240,180,41,0.6); }
+
+/* —— 底部友链 —— */
+.footer { text-align: center; padding: 22px 0 30px; }
+.friend-link {
+  display: inline-block;
+  color: var(--muted); font-size: 0.88rem;
+  text-decoration: none; padding: 8px 16px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(23,30,38,0.6);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: color .2s, border-color .2s, transform .2s;
+}
+.friend-link:hover { color: var(--accent); border-color: rgba(62,207,142,0.5); transform: translateY(-2px); }
