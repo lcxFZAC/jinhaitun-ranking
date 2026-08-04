@@ -446,6 +446,19 @@ suggestInput.addEventListener("keydown", (e) => {
   else if (e.key === "Escape") closeSuggest();
 });
 document.addEventListener("click", (e) => { if (!e.target.closest(".trend-search-wrap")) closeSuggest(); });
+
+// —— 作者推荐作品（广告位）点击查看走势 ——
+document.querySelectorAll(".rec-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    const name = card.dataset.rec;
+    if (!name) return;
+    suggestInput.value = name;
+    state.trendName = name;
+    renderTrend(name);
+    renderRankTrend(name);
+    document.getElementById("trendbar").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+});
 $("#btnVote").addEventListener("click", () => {
   const url = "https://act.3839.com/n/hykb/jinhaitun/phase1/pc/index.php";
   window.open(url, "_blank");
