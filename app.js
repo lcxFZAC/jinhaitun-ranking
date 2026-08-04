@@ -59,7 +59,7 @@ function currentRangeIdxs() {
     return ts.map((s, i) => ({ i, t: new Date(s.length === 19 ? s + "+08:00" : s).getTime() }))
       .filter((x) => x.t >= f && x.t <= t).map((x) => x.i);
   }
-  const hours = state.range === "24h" ? 24 : state.range === "7d" ? 168 : 720;
+  const hours = state.range === "24h" ? 24 : state.range === "3d" ? 72 : state.range === "7d" ? 168 : 720;
   const cutoff = now - hours * 3600 * 1000;
   return ts.map((s, i) => ({ i, t: new Date(s.length === 19 ? s + "+08:00" : s).getTime() }))
     .filter((x) => x.t >= cutoff).map((x) => x.i);
