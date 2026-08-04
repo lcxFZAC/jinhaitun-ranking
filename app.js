@@ -322,10 +322,12 @@ function renderRankTrend(name) {
       const singleColor = mobile.length && mobile.some((v) => v != null) ? "#3ecf8e" : (pc.length && pc.some((v) => v != null) ? "#6cb6ff" : "#f0b429");
       datasets.push({ label: singleLabel, data: singleRank, borderColor: singleColor, backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
     } else {
-      datasets.push({ label: "总榜排名", data: overall, borderColor: "#f0b429", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
-      if (mobile.length && mobile.some((v) => v != null)) datasets.push({ label: "手游排名", data: mobile, borderColor: "#3ecf8e", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
-      // PC 单独排名曲线（PC 版存在时显示）
-      if (pc.length && pc.some((v) => v != null)) datasets.push({ label: "PC 排名", data: pc, borderColor: "#6cb6ff", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+      // 双版本：只显示 手游 + PC 两条，均按总榜排名算
+      const mRank = mobileId ? sliceBy(state.ranks.ranks[mobileId] || [], idxs).map((v) => (v == null ? null : v)) : [];
+      const pRank = pcId ? sliceBy(state.ranks.ranks[pcId] || [], idxs).map((v) => (v == null ? null : v)) : [];
+      if (mRank.length && mRank.some((v) => v != null)) datasets.push({ label: "手游排名", data: mRank, borderColor: "#3ecf8e", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+      if (pRank.length && pRank.some((v) => v != null)) datasets.push({ label: "PC 排名", data: pRank, borderColor: "#6cb6ff", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+      if (!datasets.length) datasets.push({ label: "总榜排名", data: overall, borderColor: "#f0b429", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
     }
   }
   const ctx = $("#rankChart").getContext("2d");
