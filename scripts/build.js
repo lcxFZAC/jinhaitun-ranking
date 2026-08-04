@@ -33,14 +33,50 @@ const prevTotalZan = prev ? prev.games.reduce((s, g) => s + (g.zan || 0), 0) : n
 const pcCount = games.filter((g) => !g.types.includes("手游")).length;
 const mobileCount = games.filter((g) => g.types.includes("手游")).length;
 
+// —— 昨日同时刻对比（每日对比基准）——
+function yestTimeOf(ts) {
+  // ts 形如 YYYY-MM-DDTHH:00:00 → 取昨天同一小时
+  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}):/.exec(ts);
+  if (!m) return null;
+  const d = new Date(m[1] + "T" + m[2] + ":00:00+08:00");
+  d.setDate(d.getDate() - 1);
+  return d.toISOString(); // UTC
+}
+const latestH = /^(\d{4}-\d{2}-\d{2})T(\d{2}):/.exec(latest.crawled_at);
+const yestH = latestH ? latestH[1].slice(0, 4) + "-" + latestH[1].slice(5) : null;
+// 昨天同一 HH:00 的本地日期前缀 + 小时
+const yestLocal = latestH ? (() => {
+  const d = new Date(`${latestH[1]}T${latestH[2]}:00:00+08:00`);
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10) + "T" + latestH[2];
+})() : null;
+// 找昨日同时刻快照（本地对齐：snap.crawled_at 是本地+8 字符串 YYYY-MM-DDTHH:00:00）
+let yestSnap = yestLocal ? snaps.find((s) => s.crawled_at.startsWith(yestLocal)) : null;
+// 若无同时刻，退回昨日最早快照
+if (!yestSnap && latestH) {
+  const yestDate = (() => { const d = new Date(`${latestH[1]}T00:00:00+08:00`); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); })();
+  yestSnap = snaps.find((s) => s.crawled_at.startsWith(yestDate)) || null;
+}
+const yestZanById = {};
+if (yestSnap) yestSnap.games.forEach((g) => { yestZanById[String(g.id)] = Number(g.zan) || 0; });
+const tsYest = yestSnap ? yestSnap.crawled_at : null;
+// 每作品昨日热度 + 日涨幅
+games.forEach((g) => {
+  g.zanYest = yestZanById[g.id] != null ? yestZanById[g.id] : 0;
+  g.dayDelta = g.zan - g.zanYest;
+});
+const totalZanYest = tsYest != null ? games.reduce((s, g) => s + g.zanYest, 0) : null;
+
 const latestOut = {
   ts: latest.crawled_at,
   prevTs: prev ? prev.crawled_at : null,
+  tsYest,
   total: games.length,
   pcCount,
   mobileCount,
   totalZan,
   totalDelta: prevTotalZan != null ? totalZan - prevTotalZan : null,
+  totalZanYest,
   games,
 };
 fs.writeFileSync(path.join(outDir, "latest.json"), JSON.stringify(latestOut));
