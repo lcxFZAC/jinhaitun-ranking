@@ -255,6 +255,8 @@ function renderTrend(name) {
 function renderTrendStat(name) {
   const wrap = document.getElementById("trendStatCards");
   if (!wrap) return;
+  const chip = document.getElementById("trendStatChip");
+  if (chip) chip.textContent = name ? (name.replace(/-PC$/i, "") + " · 总数据") : "选择作品查看";
   const base = (name || "").replace(/-PC$/i, "").trim();
   // 同作品所有版本（手游 + PC，若有）
   const versions = findAllByIdsByName(name);

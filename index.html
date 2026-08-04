@@ -7,7 +7,7 @@
   <link rel="shortcut icon" href="data:," />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260804zj" />
+  <link rel="stylesheet" href="./styles.css?v=20260804zk" />
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -92,10 +92,6 @@
         <div class="chart-wrap" style="height:300px">
           <canvas id="trendChart"></canvas>
         </div>
-        <div class="card-head" style="margin-top:14px;margin-bottom:4px">
-          <h4 style="font-size:0.9rem;color:var(--muted,#8b98a8);font-weight:600">📊 当前作品 · 总数据</h4>
-        </div>
-        <div class="stat-ver-wrap" id="trendStatCards" style="margin-top:4px"></div>
       </article>
       <article class="card chart-card">
         <div class="card-head">
@@ -106,6 +102,15 @@
           <canvas id="rankChart"></canvas>
         </div>
       </article>
+    </section>
+
+    <!-- 当前作品 · 总数据（独立卡片） -->
+    <section class="card chart-card" style="margin-bottom:18px">
+      <div class="card-head">
+        <h3>📊 当前作品 · 总数据</h3>
+        <span class="chip" id="trendStatChip">选择作品查看</span>
+      </div>
+      <div class="stat-ver-wrap" id="trendStatCards" style="margin-top:4px"></div>
     </section>
 
     <!-- 工具栏：搜索 + 类型筛选 + 排序 -->
@@ -246,6 +251,6 @@
   </footer>
 
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-  <script src="./app.js?v=20260804zj"></script>
+  <script src="./app.js?v=20260804zk"></script>
 </body>
 </html>
