@@ -712,3 +712,17 @@ table { font-size: 0.95rem; }
 .ticker-item b { color: var(--accent); }
 .ticker-item .up { color: #ff6b6b; font-weight: 700; }
 [data-theme="light"] .ticker { background: linear-gradient(90deg, rgba(62,207,142,0.15), rgba(255,255,255,0.7)); }
+
+/* —— 不蒜子访问统计 —— */
+.footer-stats {
+  display: flex; justify-content: center; gap: 18px;
+  margin-bottom: 12px;
+}
+.stat-item {
+  color: var(--muted); font-size: 0.85rem;
+  background: rgba(23,30,38,0.5);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 14px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.stat-item b { color: var(--accent); font-weight: 700; }
