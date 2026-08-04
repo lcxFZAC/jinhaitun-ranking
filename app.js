@@ -131,7 +131,7 @@ function renderOverview() {
 function renderRows(games) {
   const tbody = $("#totalBody");
   $("#totalCount").textContent = `${games.length} 部`;
-  if (!games.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty">暂无匹配结果</div></td></tr>`; return; }
+  if (!games.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">暂无匹配结果</div></td></tr>`; return; }
   tbody.innerHTML = games.map((g, idx) => {
     const diff = g.zan - g.zanPre;
     const rankClass = idx < 3 ? "rank-top3" : "";
@@ -155,6 +155,7 @@ function renderRows(games) {
         <td>${(g.types || []).join(" / ")}</td>
         <td class="num zan-cell">${formatNum(g.zan)}</td>
         <td class="num">${diffHtml}</td>
+        <td><button type="button" class="btn-view-trend trend-link" data-name="${escapeHtml(g.name)}" title="查看热度/排名走势">查看走势</button></td>
       </tr>`;
   }).join("");
 }
@@ -485,6 +486,16 @@ $("#sortSelect").addEventListener("change", (e) => {
   state.sort = sort; state.order = order; renderRanking();
 });
 $("#totalBody").addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-view-trend");
+  if (btn) {
+    const nm = (btn.getAttribute("data-name") || "").trim();
+    if (!nm) return;
+    state.trendName = nm;
+    renderTrend(nm);
+    renderRankTrend(nm);
+    scrollToTrend();
+    return;
+  }
   const link = e.target.closest(".trend-link");
   if (!link) return;
   state.trendName = link.textContent.trim();
@@ -591,6 +602,10 @@ $("#btnVote").addEventListener("click", () => {
   } catch (e) {}
 });
 // 时间范围
+function scrollToTrend() {
+  const el = document.getElementById("trendTitle");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 function rerenderTrends() {
   if (state.trendName) {
     renderTrend(state.trendName);

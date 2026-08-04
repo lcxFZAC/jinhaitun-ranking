@@ -838,3 +838,23 @@ table { font-size: 0.95rem; }
   margin-bottom: 8px;
   letter-spacing: 0.02em;
 }
+
+/* —— 作品榜"查看走势"按钮 —— */
+.btn-view-trend {
+  background: rgba(62,207,142,0.12);
+  color: var(--accent, #3ecf8e);
+  border: 1px solid rgba(62,207,142,0.35);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .2s, transform .2s;
+}
+.btn-view-trend:hover { background: rgba(62,207,142,0.22); transform: translateY(-1px); }
+
+/* 手机端操作列按钮紧凑 */
+@media (max-width: 600px) {
+  .btn-view-trend { padding: 4px 8px; font-size: 0.7rem; }
+}
