@@ -251,23 +251,20 @@ function renderTrend(name) {
   renderTrendStat(name);
 }
 
-// —— 当前作品 · 总数据柱状图（仅该作品，不含其它作品）——
-let TREND_STAT_STATE = null;
+// —— 当前作品 · 总数据小卡片（仅该作品，不含其它作品）——
 function renderTrendStat(name) {
-  const canvas = document.getElementById("trendStatChart");
-  if (!canvas) return;
-  if (TREND_STAT_STATE) { TREND_STAT_STATE.destroy(); TREND_STAT_STATE = null; }
+  const wrap = document.getElementById("trendStatCards");
+  if (!wrap) return;
   const base = (name || "").replace(/-PC$/i, "").trim();
   // 找当前作品在 latest 的数据（PC/手游合并取主版本）
   const lg = state.latest.games || [];
   const g = lg.find((x) => x.name === name) || lg.find((x) => (x.name || "").replace(/-PC$/i, "") === base);
-  if (!g) return;
+  if (!g) { wrap.innerHTML = ""; return; }
   // 当前排名（从 ranks）
   const R = state.ranks;
   let rank = null;
   if (R && R.ranks) {
-    const rid = g.id;
-    const arr = R.ranks[rid];
+    const arr = R.ranks[g.id];
     if (arr && arr.length) rank = arr[arr.length - 1];
   }
   const cur = Number(g.zan) || 0;
@@ -275,26 +272,14 @@ function renderTrendStat(name) {
   const yest = Number(g.zanYest) || 0;
   const snapDelta = prev > 0 ? cur - prev : null;
   const dayDelta = yest > 0 ? cur - yest : null;
-  const labels = ["当前热度"];
-  const vals = [cur];
-  const colors = ["rgba(240,180,41,0.8)"];
-  if (snapDelta != null) { labels.push("较上快照"); vals.push(snapDelta); colors.push(snapDelta >= 0 ? "rgba(62,207,142,0.8)" : "rgba(244,100,95,0.8)"); }
-  if (dayDelta != null) { labels.push("较昨日"); vals.push(dayDelta); colors.push(dayDelta >= 0 ? "rgba(62,207,142,0.8)" : "rgba(244,100,95,0.8)"); }
-  if (rank != null) { labels.push("当前排名"); vals.push(rank); colors.push("rgba(77,159,255,0.8)"); }
-  if (!vals.length) return;
-  const ctx = canvas.getContext("2d");
-  TREND_STAT_STATE = new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets: [{ label: g.name.replace(/-PC$/i, ""), data: vals, backgroundColor: colors, borderRadius: 5 }] },
-    options: {
-      indexAxis: "y", responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${labels[c.dataIndex]}: ${formatNum(c.raw)}` } } },
-      scales: {
-        x: { grid: { color: "rgba(128,128,128,0.12)" }, ticks: { color: "var(--muted,#8b98a8)", font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { color: "var(--text,#e6edf3)", font: { size: 11 } } },
-      },
-    },
-  });
+  const cards = [];
+  cards.push({ label: "当前热度", v: formatNum(cur), cls: "hot" });
+  if (snapDelta != null) cards.push({ label: "较上快照", v: (snapDelta >= 0 ? "+" : "") + formatNum(snapDelta), cls: snapDelta >= 0 ? "up" : "down" });
+  if (dayDelta != null) cards.push({ label: "较昨日", v: (dayDelta >= 0 ? "+" : "") + formatNum(dayDelta), cls: dayDelta >= 0 ? "up" : "down" });
+  if (rank != null) cards.push({ label: "当前排名", v: "#" + rank, cls: "rank" });
+  wrap.innerHTML = cards.map((c) =>
+    `<div class="stat-card ${c.cls}"><span class="lbl">${c.label}</span><span class="val">${c.v}</span></div>`
+  ).join("");
 }
 
 // —— 排名走势（全榜/手游/PC）——
