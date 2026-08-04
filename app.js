@@ -143,7 +143,7 @@ function renderRows(games) {
             </div>
           </div>
         </td>
-        <td>${(g.types || []).map((t) => `<span class="tag-inline">${escapeHtml(t)}</span>`).join("")}</td>
+        <td>${(g.types || []).join(" / ")}</td>
         <td class="num zan-cell">${formatNum(g.zan)}</td>
         <td class="num">${diffHtml}</td>
       </tr>`;
@@ -174,6 +174,22 @@ function findIdByName(name) {
   return ids.find((id) => state.series.meta[id].name === name) || ids[0] || null;
 }
 
+// 找同作品的所有版本（PC + 手游），返回 [{id,name,isPC,img}]
+function findAllByIdsByName(name) {
+  if (!state.series) return [];
+  const base = (name || "").replace(/-PC$/i, "").trim();
+  const out = [];
+  Object.keys(state.series.meta).forEach((id) => {
+    const m = state.series.meta[id];
+    const mName = (m.name || "").trim();
+    if (mName === name || mName.replace(/-PC$/i, "").trim() === base) {
+      const isPC = /-PC$/i.test(mName) || (m.types || []).includes("PC游戏");
+      out.push({ id, name: mName, isPC, img: m.img || "" });
+    }
+  });
+  return out;
+}
+
 // —— 顶部作品封面模糊背景 ——
 function ensureCoverBg() {
   let bg = document.querySelector(".cover-bg");
@@ -195,22 +211,33 @@ function updateCoverBg(name) {
 function renderTrend(name) {
   if (!name) return;
   if (state.trendChart) state.trendChart.destroy();
-  const id = findIdByName(name);
-  $("#trendTitle").textContent = `${name} · 热度走势`;
+  const series = findAllByIdsByName(name);
+  $("#trendTitle").textContent = `${name.replace(/-PC$/i, "")} · 热度走势`;
   updateCoverBg(name);
   const idxs = currentRangeIdxs();
   const ts = state.series.ts;
   const labels = sliceBy(ts, idxs).map(formatShortTime);
-  const zans = id ? sliceBy(state.series.series[id] || [], idxs).map((v) => (v == null ? null : v)) : [];
-  const empty = !id || !zans.length;
+  // 若无匹配则退化为按原名查单条
+  const items = series.length ? series : (findIdByName(name) ? [{ id: findIdByName(name), name, isPC: false }] : []);
+  const datasets = items.map((it, i) => {
+    const arr = sliceBy(state.series.series[it.id] || [], idxs).map((v) => (v == null ? null : v));
+    const isPC = it.isPC;
+    const color = isPC ? "#4d9fff" : "#f0b429";
+    const label = items.length > 1 ? (isPC ? `${it.name} · PC` : `${it.name} · 手游`) : "热度";
+    return {
+      label,
+      data: arr,
+      borderColor: color,
+      backgroundColor: isPC ? "rgba(77,159,255,0.12)" : "rgba(240,180,41,0.15)",
+      tension: 0.35, fill: false, spanGaps: true, pointRadius: 3,
+    };
+  });
+  const empty = !datasets.length || datasets.every((d) => !d.data.length);
   const ctx = $("#trendChart").getContext("2d");
   state.trendChart = new Chart(ctx, {
     type: "line",
-    data: {
-      labels: empty ? ["暂无数据"] : labels,
-      datasets: [{ label: "热度", data: empty ? [0] : zans, borderColor: "#f0b429", backgroundColor: "rgba(240,180,41,0.15)", tension: 0.35, fill: true, spanGaps: true, pointRadius: 3 }],
-    },
-    options: { ...chartBase(), plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `热度 ${c.raw}` } } } },
+    data: { labels: empty ? ["暂无数据"] : labels, datasets: empty ? [{ label: "热度", data: [0], borderColor: "#f0b429", pointRadius: 0 }] : datasets },
+    options: { ...chartBase(), plugins: { legend: { display: items.length > 1 }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw} 热度` } } } },
   });
 }
 
@@ -315,7 +342,7 @@ async function refreshAll() {
   const sliced = currentRangeIdxs();
   const shown = sliced.length;
   setStatus(`就绪 · ${formatTime(latest.ts)} 抓取`, "ok");
-  $("#snapInfo").textContent = `${formatTime(latest.ts)} · ${latest.total} 部`;
+  $("#snapInfo").textContent = `${formatTime(latest.ts)} · ${latest.total} 部 · 环比较 ${formatTime(latest.prevTs)}`;
   $("#rangeHint").textContent = shown ? `（范围内 ${shown} 个时点）` : "（范围内无数据）";
   renderOverview();
   renderRanking();

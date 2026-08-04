@@ -582,3 +582,6 @@ table { font-size: 0.95rem; }
 }
 .trend-input-row input[type="search"]:focus { border-color: rgba(62,207,142,0.45); }
 .trend-input-row #btnViewTrend { white-space: nowrap; }
+
+/* —— 环比说明小字 + 类型用 / 分割 —— */
+.th-hint { font-weight: 400; font-size: 0.7rem; color: var(--muted); opacity: 0.8; }
