@@ -346,7 +346,7 @@ async function refreshAll() {
   state.latest = latest; state.series = series; state.ranks = ranks;
   const sliced = currentRangeIdxs();
   const shown = sliced.length;
-  setStatus(`就绪 · ${formatTime(latest.ts)} 抓取`, "ok");
+  setStatus(`就绪 · ${formatTime(latest.ts)} 更新`, "ok");
   $("#snapInfo").textContent = `${formatTime(latest.ts)} · ${latest.total} 部 · 环比较 ${formatTime(latest.prevTs)}`;
   $("#rangeHint").textContent = shown ? `（范围内 ${shown} 个时点）` : "（范围内无数据）";
   renderOverview();
