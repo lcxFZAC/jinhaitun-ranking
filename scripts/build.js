@@ -73,6 +73,26 @@ const seriesOut = { ts, series, meta };
 fs.writeFileSync(path.join(outDir, "series.json"), JSON.stringify(seriesOut));
 console.log(`✔ series.json  ts点数=${ts.length} 作品数=${Object.keys(series).length}`);
 
+// —— 排名序列：每个时间点每作品的排名（按 zan 从高到低，含手游/PC 分榜）——
+// 生成: { ts, ranks:{id:[排名数组]}, mobileRanks:{id:[...]}, pcRanks:{id:[...]}, perTs:[{t, overall:[[id,rank]...], mobile:[...], pc:[...]}] }
+const ranks = {};       // 全榜排名
+const mobileRanks = {}; // 手游榜
+const pcRanks = {};     // PC 榜
+for (const id of Object.keys(series)) { ranks[id] = new Array(ts.length).fill(null); mobileRanks[id] = new Array(ts.length).fill(null); pcRanks[id] = new Array(ts.length).fill(null); }
+snaps.forEach((snap, ti) => {
+  const isMobile = (g) => !(g.types || []).includes("PC游戏");
+  const byZan = (a, b) => (b.zan || 0) - (a.zan || 0);
+  const overall = [...snap.games].sort(byZan);
+  const mobile = overall.filter(isMobile);
+  const pc = overall.filter((g) => !isMobile(g));
+  overall.forEach((g, i) => { const id = String(g.id); if (ranks[id]) ranks[id][ti] = i + 1; });
+  mobile.forEach((g, i) => { const id = String(g.id); if (mobileRanks[id]) mobileRanks[id][ti] = i + 1; });
+  pc.forEach((g, i) => { const id = String(g.id); if (pcRanks[id]) pcRanks[id][ti] = i + 1; });
+});
+const ranksOut = { ts, ranks, mobileRanks, pcRanks };
+fs.writeFileSync(path.join(outDir, "ranks.json"), JSON.stringify(ranksOut));
+console.log(`✔ ranks.json  全榜/手游/PC 排名已生成`);
+
 // 校验
 const bbLatest = games.find((g) => g.id === "437");
 if (bbLatest) console.log(`  榜首: ${bbLatest.name} zan=${bbLatest.zan} 环比=${bbLatest.zan - bbLatest.zanPre}`);

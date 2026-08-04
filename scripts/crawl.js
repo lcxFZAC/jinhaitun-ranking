@@ -9,9 +9,11 @@ const histPath = process.argv[2] || path.join(root, "data", "history.json");
 const crawler = require(path.join(__dirname, "crawler.js"));
 
 function hourKey(iso) {
+  // 强制用东八区（Asia/Shanghai）整点，不依赖运行环境时区（CI 是 UTC）
   const d = new Date(iso);
+  const local = new Date(d.getTime() + 8 * 3600 * 1000); // +8h
   const p = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:00:00`;
+  return `${local.getUTCFullYear()}-${p(local.getUTCMonth() + 1)}-${p(local.getUTCDate())}T${p(local.getUTCHours())}:00:00`;
 }
 
 (async () => {
