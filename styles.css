@@ -686,3 +686,29 @@ table { font-size: 0.95rem; }
   transition: color .2s, border-color .2s, transform .2s;
 }
 .friend-link:hover { color: var(--accent); border-color: rgba(62,207,142,0.5); transform: translateY(-2px); }
+
+/* —— 顶部轮播快讯 —— */
+.ticker {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; margin-bottom: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(62,207,142,0.12), rgba(23,30,38,0.6));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+.ticker-label {
+  flex: 0 0 auto; white-space: nowrap;
+  color: var(--accent); font-weight: 700; font-size: 0.85rem;
+  background: rgba(62,207,142,0.16); padding: 4px 10px; border-radius: 999px;
+}
+.ticker-viewport { flex: 1; height: 24px; overflow: hidden; position: relative; }
+.ticker-track { position: absolute; top: 0; left: 0; right: 0; }
+.ticker-item {
+  height: 24px; line-height: 24px; overflow: hidden;
+  color: var(--text); font-size: 0.9rem; white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ticker-item b { color: var(--accent); }
+.ticker-item .up { color: #ff6b6b; font-weight: 700; }
+[data-theme="light"] .ticker { background: linear-gradient(90deg, rgba(62,207,142,0.15), rgba(255,255,255,0.7)); }

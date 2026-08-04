@@ -324,6 +324,64 @@ function renderTopRanks() {
   renderTopChart("topPcChart", "pcRanks", "pcTopCount");
 }
 
+// —— 顶部轮播快讯：播报上一时段排名提升的作品 ——
+function renderTicker(latest) {
+  const track = $("#tickerTrack");
+  if (!track || !state.ranks) return;
+  const R = state.ranks;
+  const n = R.ts ? R.ts.length : 0;
+  const last = n - 1, prev = n - 2;
+  const items = [];
+  if (last >= 0 && prev >= 0) {
+    const gains = [];
+    Object.keys(R.ranks).forEach((id) => {
+      const arr = R.ranks[id];
+      const c = arr[last], p = arr[prev];
+      if (c == null || p == null) return;
+      const g = p - c; // 排名提升名次
+      if (g > 0) {
+        const gObj = (latest.games || []).find((x) => String(x.id) === id);
+        gains.push({ name: gObj ? gObj.name : id, gain: g });
+      }
+    });
+    gains.sort((a, b) => b.gain - a.gain);
+    const top = gains.slice(0, 8);
+    if (top.length) {
+      top.forEach((g) => {
+        items.push(`<div class="ticker-item"><b>${escapeHtml(g.name)}</b> 在前一个小时里面排名提升了 <span class="up">↑${g.gain}名</span></div>`);
+      });
+    }
+  }
+  if (!items.length) {
+    items.push(`<div class="ticker-item">还没有作品排名上升，请支持 <b>把把博弈王</b> 喵～</div>`);
+  }
+  // 首尾各补一条实现无缝循环
+  const first = items[0], lastItem = items[items.length - 1];
+  track.innerHTML = lastItem + items.join("") + first;
+  const total = items.length + 2;
+  const h = 24;
+  track.style.height = (total * h) + "px";
+  // 用 transform 每 N 秒上移一项，循环
+  let idx = 0;
+  clearInterval(window._tickerTimer);
+  window._tickerTimer = setInterval(() => {
+    idx++;
+    track.style.transition = "transform .6s ease";
+    track.style.transform = `translateY(-${(idx % total) * h}px)`;
+    if (idx % total === total - 1) {
+      // 跳到克隆的首条后，无过渡复位到真实首条
+      setTimeout(() => {
+        track.style.transition = "none";
+        track.style.transform = "translateY(0px)";
+        idx = 0;
+        setTimeout(() => { track.style.transition = "transform .6s ease"; }, 30);
+      }, 650);
+    }
+  }, 2600);
+  // 初始显示第一条
+  track.style.transform = "translateY(0px)";
+}
+
 // —— 主题切换 ——
 function initTheme() {
   const saved = localStorage.getItem("jht-theme") || "dark";
@@ -352,6 +410,7 @@ async function refreshAll() {
   renderOverview();
   renderRanking();
   renderTopRanks();
+  renderTicker(latest);
   if (!state.trendName && latest.games[0]) {
     state.trendName = latest.games.sort((a, b) => b.zan - a.zan)[0].name;
   }
