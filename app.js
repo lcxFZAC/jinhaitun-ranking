@@ -312,12 +312,21 @@ function renderRankTrend(name) {
   const mobile = mobileId ? sliceBy(state.ranks.mobileRanks[mobileId] || [], idxs).map((v) => (v == null ? null : v)) : [];
   const pc = pcId ? sliceBy(state.ranks.pcRanks[pcId] || [], idxs).map((v) => (v == null ? null : v)) : [];
   const empty = !overallId || !overall.length;
+  const isSingle = versions.length <= 1; // 仅单一版本（手游或PC）
   const datasets = [];
   if (!empty) {
-    datasets.push({ label: "总榜排名", data: overall, borderColor: "#f0b429", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
-    if (mobile.length && mobile.some((v) => v != null)) datasets.push({ label: "手游排名", data: mobile, borderColor: "#3ecf8e", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
-    // PC 单独排名曲线（PC 版存在时显示）
-    if (pc.length && pc.some((v) => v != null)) datasets.push({ label: "PC 排名", data: pc, borderColor: "#6cb6ff", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+    if (isSingle) {
+      // 单一版本：只显示该版本排名曲线（手游或PC），避免与总榜重叠
+      const singleRank = mobile.length && mobile.some((v) => v != null) ? mobile : (pc.length && pc.some((v) => v != null) ? pc : overall);
+      const singleLabel = mobile.length && mobile.some((v) => v != null) ? "手游排名" : (pc.length && pc.some((v) => v != null) ? "PC 排名" : "排名");
+      const singleColor = mobile.length && mobile.some((v) => v != null) ? "#3ecf8e" : (pc.length && pc.some((v) => v != null) ? "#6cb6ff" : "#f0b429");
+      datasets.push({ label: singleLabel, data: singleRank, borderColor: singleColor, backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+    } else {
+      datasets.push({ label: "总榜排名", data: overall, borderColor: "#f0b429", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+      if (mobile.length && mobile.some((v) => v != null)) datasets.push({ label: "手游排名", data: mobile, borderColor: "#3ecf8e", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+      // PC 单独排名曲线（PC 版存在时显示）
+      if (pc.length && pc.some((v) => v != null)) datasets.push({ label: "PC 排名", data: pc, borderColor: "#6cb6ff", backgroundColor: "transparent", tension: 0.3, fill: false, spanGaps: true, pointRadius: 3 });
+    }
   }
   const ctx = $("#rankChart").getContext("2d");
   state.rankChart = new Chart(ctx, {
