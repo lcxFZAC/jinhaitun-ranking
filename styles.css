@@ -827,3 +827,14 @@ table { font-size: 0.95rem; }
   .stat-cards { grid-template-columns: repeat(2, 1fr); }
   .stat-card .val { font-size: 1rem; }
 }
+
+/* —— 当前作品总数据：多版本分组 —— */
+.stat-ver { margin-bottom: 14px; }
+.stat-ver:last-child { margin-bottom: 0; }
+.stat-ver-title {
+  display: block;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
