@@ -760,8 +760,10 @@ table { font-size: 0.95rem; }
   #rangeSeg { display: flex; flex-wrap: wrap; gap: 6px; }
   #rangeSeg button { flex: 1 1 auto; padding: 8px 10px; font-size: 0.8rem; }
   .custom-range { flex-direction: column; align-items: stretch; }
-  .custom-range .range-inputs { display: flex; gap: 6px; }
-  .custom-range input { min-width: 0; width: 100%; }
+  .custom-range .range-inputs { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 6px; }
+  .custom-range .range-inputs .range-sep { text-align: center; padding: 0; }
+  .custom-range .range-inputs input[type="datetime-local"] { min-width: 0; width: 100%; font-size: 0.72rem; padding: 6px 4px; height: 38px; }
+  .custom-range .range-inputs .btn-sm { grid-column: 1 / -1; width: 100%; height: 36px; }
 
   /* 趋势条 */
   .trend-row { flex-direction: column; align-items: stretch; }
