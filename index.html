@@ -7,7 +7,7 @@
   <link rel="shortcut icon" href="data:," />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260804e" />
+  <link rel="stylesheet" href="./styles.css?v=20260804f" />
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -61,13 +61,13 @@
     </section>
 
     <section class="toolbar card" id="trendbar">
-      <div class="trend-thumb" id="trendThumb" title="当前查看作品"></div>
-      <div class="search-box" style="flex:1">
+      <div class="trend-row">
         <label for="trendSearch">查看作品热度 / 排名走势</label>
-        <input id="trendSearch" type="search" placeholder="输入作品名（默认榜首）" />
-      </div>
-      <div class="trend-controls">
-        <button type="button" id="btnViewTrend">查看走势</button>
+        <div class="trend-input-row">
+          <div class="trend-thumb" id="trendThumb" title="当前查看作品"></div>
+          <input id="trendSearch" type="search" placeholder="输入作品名（默认榜首）" />
+          <button type="button" id="btnViewTrend">查看走势</button>
+        </div>
       </div>
     </section>
 
@@ -182,6 +182,6 @@
       <span></span>
     </footer>
   </div>
-  <script src="./app.js?v=20260804e"></script>
+  <script src="./app.js?v=20260804f"></script>
 </body>
 </html>
