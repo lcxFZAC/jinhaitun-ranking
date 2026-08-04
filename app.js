@@ -591,12 +591,21 @@ $("#btnVote").addEventListener("click", () => {
   } catch (e) {}
 });
 // 时间范围
+function rerenderTrends() {
+  if (state.trendName) {
+    renderTrend(state.trendName);
+    renderRankTrend(state.trendName);
+  }
+  const shown = currentRangeIdxs().length;
+  const hint = document.getElementById("rangeHint");
+  if (hint) hint.textContent = shown ? `（范围内 ${shown} 个时点）` : "（范围内无数据）";
+}
 $("#rangeSeg").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-range]");
   if (!btn) return;
   state.range = btn.dataset.range;
   [...$("#rangeSeg").children].forEach((b) => b.classList.toggle("active", b === btn));
-  refreshAll();
+  rerenderTrends();
 });
 $("#btnApplyRange").addEventListener("click", () => {
   const f = $("#fromInput").value, t = $("#toInput").value;
@@ -604,7 +613,7 @@ $("#btnApplyRange").addEventListener("click", () => {
   state.range = "custom";
   state.from = f; state.to = t;
   [...$("#rangeSeg").children].forEach((b) => b.classList.remove("active"));
-  refreshAll();
+  rerenderTrends();
 });
 
 initTheme();
