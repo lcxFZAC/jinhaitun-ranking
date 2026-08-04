@@ -186,6 +186,9 @@ function updateCoverBg(name) {
   const g = state.latest.games.find((x) => x.name === name) || state.latest.games.find((x) => (x.name || "").replace(/-PC$/i, "") === name);
   if (g && g.img) { bg.style.backgroundImage = `url("${escapeHtml(g.img)}")`; bg.style.opacity = "0.55"; }
   else { bg.style.backgroundImage = ""; bg.style.opacity = "0"; }
+  // 同步更新趋势容器内的作品图标
+  const thumb = $("#trendThumb");
+  if (thumb) thumb.innerHTML = g && g.img ? `<img src="${escapeHtml(g.img)}" loading="lazy">` : "🎮";
 }
 
 // —— 热度走势 ——
