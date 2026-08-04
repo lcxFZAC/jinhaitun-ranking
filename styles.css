@@ -296,7 +296,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .footer {
   margin-top: 18px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
   color: var(--muted);
   font-size: 0.8rem;

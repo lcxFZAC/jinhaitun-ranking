@@ -545,3 +545,16 @@ $("#btnApplyRange").addEventListener("click", () => {
 initTheme();
 refreshAll().catch((err) => setStatus(err.message, "err"));
 setInterval(() => refreshAll().catch(console.error), 60_000);
+
+// —— 访问打点（方案B 统计服务）——
+(function () {
+  try {
+    const payload = { ua: navigator.userAgent, ref: document.referrer || "", path: location.pathname };
+    const url = "http://129.211.224.82:3805/hit";
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([JSON.stringify(payload)], { type: "application/json" }));
+    } else {
+      fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
+    }
+  } catch (e) { /* 打点失败不影响页面 */ }
+})();
