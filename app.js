@@ -379,7 +379,73 @@ $("#btnViewTrend").addEventListener("click", () => {
   state.trendName = name;
   renderTrend(name);
   renderRankTrend(name);
+  closeSuggest();
 });
+
+// —— 作品名模糊搜索下拉 ——
+const suggestEl = $("#trendSuggest");
+const suggestInput = $("#trendSearch");
+let suggestActive = -1;
+let suggestList = [];
+function suggestCandidates(q) {
+  if (!state.latest) return [];
+  const ql = q.toLowerCase().trim();
+  if (!ql) return [];
+  const seen = new Set();
+  const out = [];
+  state.latest.games.forEach((g) => {
+    if (!out.length || out.length < 12) {
+      const base = (g.name || "").replace(/-PC$/i, "");
+      if (!seen.has(base) && (base.toLowerCase().includes(ql) || (g.intro || "").toLowerCase().includes(ql))) {
+        seen.add(base);
+        out.push({ name: g.name, base, types: (g.types || []).join("/"), img: g.img || "" });
+      }
+    }
+  });
+  return out;
+}
+function renderSuggest(list) {
+  suggestList = list;
+  suggestEl.innerHTML = "";
+  suggestActive = -1;
+  if (!list.length) {
+    suggestEl.innerHTML = `<li class="s-no">无匹配作品</li>`;
+    suggestEl.classList.add("open");
+    return;
+  }
+  list.forEach((it, i) => {
+    const li = document.createElement("li");
+    li.dataset.index = i;
+    li.innerHTML = `${it.img ? `<img src="${escapeHtml(it.img)}" loading="lazy">` : `<span class="s-ic">🎮</span>`}<span class="s-name">${escapeHtml(it.base)}</span><span class="s-type">${escapeHtml(it.types)}</span>`;
+    li.addEventListener("mousedown", (e) => { e.preventDefault(); pickSuggest(it); });
+    li.addEventListener("mouseenter", () => { suggestActive = i; markActive(); });
+    suggestEl.appendChild(li);
+  });
+  suggestEl.classList.add("open");
+}
+function markActive() {
+  [...suggestEl.children].forEach((li, i) => li.classList.toggle("active", i === suggestActive));
+}
+function pickSuggest(it) {
+  suggestInput.value = it.name;
+  state.trendName = it.name;
+  renderTrend(it.name);
+  renderRankTrend(it.name);
+  closeSuggest();
+}
+function closeSuggest() { suggestEl.classList.remove("open"); suggestEl.innerHTML = ""; suggestList = []; suggestActive = -1; }
+suggestInput.addEventListener("input", () => renderSuggest(suggestCandidates(suggestInput.value)));
+suggestInput.addEventListener("focus", () => { if (suggestInput.value.trim()) renderSuggest(suggestCandidates(suggestInput.value)); });
+suggestInput.addEventListener("keydown", (e) => {
+  const items = suggestEl.children;
+  if (e.key === "ArrowDown") { e.preventDefault(); suggestActive = Math.min(suggestActive + 1, items.length - 1); markActive(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); suggestActive = Math.max(suggestActive - 1, 0); markActive(); }
+  else if (e.key === "Enter") {
+    if (suggestActive >= 0 && suggestList[suggestActive]) { e.preventDefault(); pickSuggest(suggestList[suggestActive]); }
+  }
+  else if (e.key === "Escape") closeSuggest();
+});
+document.addEventListener("click", (e) => { if (!e.target.closest(".trend-search-wrap")) closeSuggest(); });
 $("#btnVote").addEventListener("click", () => {
   const url = "https://act.3839.com/n/hykb/jinhaitun/phase1/pc/index.php";
   window.open(url, "_blank");
