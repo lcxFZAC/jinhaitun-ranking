@@ -653,3 +653,20 @@ table { font-size: 0.95rem; }
   background: var(--bg-soft); padding: 3px 10px; border-radius: 999px;
   border: 1px solid var(--line);
 }
+
+/* —— 作者推荐卡 悬停提示气泡（请支持XXX） —— */
+.rec-card { }
+.rec-card::after {
+  content: "请支持 " attr(data-rec);
+  position: absolute; left: 50%; top: 8px; transform: translateX(-50%) translateY(-6px);
+  background: rgba(15,20,25,0.92); color: #ffd76a;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; white-space: nowrap;
+  padding: 6px 14px; border-radius: 999px;
+  border: 1px solid rgba(240,180,41,0.45);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s;
+  z-index: 3;
+}
+.rec-card:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+[data-theme="light"] .rec-card::after { background: rgba(255,255,255,0.96); color: #9a6a00; border-color: rgba(240,180,41,0.6); }

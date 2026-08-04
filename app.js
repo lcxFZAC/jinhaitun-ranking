@@ -447,9 +447,11 @@ suggestInput.addEventListener("keydown", (e) => {
 });
 document.addEventListener("click", (e) => { if (!e.target.closest(".trend-search-wrap")) closeSuggest(); });
 
-// —— 作者推荐作品（广告位）点击查看走势 ——
+// —— 作者推荐作品（广告位）点击进入游戏页 ——
 document.querySelectorAll(".rec-card").forEach((card) => {
-  card.addEventListener("click", () => {
+  card.addEventListener("click", (e) => {
+    const link = card.dataset.link;
+    if (link) { window.open(link, "_blank"); return; }
     const name = card.dataset.rec;
     if (!name) return;
     suggestInput.value = name;
