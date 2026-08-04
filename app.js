@@ -550,7 +550,7 @@ setInterval(() => refreshAll().catch(console.error), 60_000);
 (function () {
   try {
     const payload = { ua: navigator.userAgent, ref: document.referrer || "", path: location.pathname };
-    const url = "https://129.211.224.82:3805/hit";
+    const url = "https://jhtstats.duckdns.org/hit";
     if (navigator.sendBeacon) {
       navigator.sendBeacon(url, new Blob([JSON.stringify(payload)], { type: "application/json" }));
     } else {
