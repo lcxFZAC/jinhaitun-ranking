@@ -554,7 +554,7 @@ setInterval(() => refreshAll().catch(console.error), 60_000);
 // 用 fetch + text/plain：text/plain 是“简单请求”，跨域不触发预检(OPTIONS)，最稳
 // 双 URL（duckdns 域名 + IP 直连）双保险：走 IP 的用户需在浏览器信任一次 duckdns 证书
 // 服务器对同 IP 有 5 秒限频，双发不会重复计数
-var JHT_STATS_URLS = ["https://jhtstats.duckdns.org", "https://129.211.224.82"];
+var JHT_STATS_URLS = ["https://jhtdata.online", "https://129.211.224.82"];
 function jhtPost(path, payload) {
   const body = JSON.stringify(payload);
   var i;
