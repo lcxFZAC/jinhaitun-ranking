@@ -7,7 +7,7 @@
   <link rel="shortcut icon" href="data:," />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260804d" />
+  <link rel="stylesheet" href="./styles.css?v=20260804e" />
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -41,7 +41,7 @@
     <!-- 时间范围 + 作品热度走势 -->
     <section class="toolbar card" id="timebar">
       <div class="filters" style="margin-right:18px">
-        <label>时间范围</label>
+        <label>时间范围 <span class="range-hint" id="rangeHint"></span></label>
         <div class="seg" id="rangeSeg">
           <button type="button" data-range="24h" class="active">近24小时</button>
           <button type="button" data-range="7d">近7天</button>
@@ -58,16 +58,15 @@
           <button type="button" class="btn-sm" id="btnApplyRange">应用</button>
         </div>
       </div>
-      <div class="snap-info" style="margin-left:auto" id="snapInfo2"></div>
     </section>
 
     <section class="toolbar card" id="trendbar">
+      <div class="trend-thumb" id="trendThumb" title="当前查看作品"></div>
       <div class="search-box" style="flex:1">
         <label for="trendSearch">查看作品热度 / 排名走势</label>
         <input id="trendSearch" type="search" placeholder="输入作品名（默认榜首）" />
       </div>
       <div class="trend-controls">
-        <div class="trend-thumb" id="trendThumb" title="当前查看作品"></div>
         <button type="button" id="btnViewTrend">查看走势</button>
       </div>
     </section>
@@ -183,6 +182,6 @@
       <span></span>
     </footer>
   </div>
-  <script src="./app.js?v=20260804d"></script>
+  <script src="./app.js?v=20260804e"></script>
 </body>
 </html>

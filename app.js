@@ -316,7 +316,7 @@ async function refreshAll() {
   const shown = sliced.length;
   setStatus(`就绪 · ${formatTime(latest.ts)} 抓取`, "ok");
   $("#snapInfo").textContent = `${formatTime(latest.ts)} · ${latest.total} 部`;
-  $("#snapInfo2").textContent = shown ? `范围内 ${shown} 个时点` : "范围内无数据";
+  $("#rangeHint").textContent = shown ? `（范围内 ${shown} 个时点）` : "（范围内无数据）";
   renderOverview();
   renderRanking();
   renderTopRanks();

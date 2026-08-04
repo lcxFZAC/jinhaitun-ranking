@@ -564,3 +564,8 @@ table { font-size: 0.95rem; }
   font-size: 1.4rem;
 }
 .trend-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* —— 时间范围括号提示 + 趋势缩略图左置 —— */
+.range-hint { color: var(--muted); font-weight: 400; font-size: 0.72rem; margin-left: 4px; }
+#trendbar .search-box { margin-left: 14px; }
+#trendbar .trend-thumb { align-self: flex-end; margin-bottom: 2px; }
