@@ -109,13 +109,56 @@ function renderOverview() {
   const deltaArrow = delta > 0 ? "▲" : delta < 0 ? "▼" : "·";
   const deltaHtml = delta == null ? "—" : `${deltaArrow} ${delta > 0 ? "+" : ""}${formatNum(delta)}`;
   const prevLabel = L.prevTs ? formatShortTime(L.prevTs) : "—";
+  // 今日 vs 昨日 总热度对比
+  let dayDeltaHtml = "—";
+  if (L.totalZanYest != null && L.totalZanYest > 0) {
+    const pct = ((L.totalZan - L.totalZanYest) / L.totalZanYest) * 100;
+    const cls = pct >= 0 ? "up" : "down";
+    const arrow = pct >= 0 ? "▲" : "▼";
+    dayDeltaHtml = `<span class="delta-${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</span> <small style="color:var(--muted)">(${formatNum(L.totalZan - L.totalZanYest)})</small>`;
+  }
   $("#overviewKpis").innerHTML = `
     <div class="kpi total"><div class="label">参赛作品总数</div><div class="value">${formatNum(L.total)}</div></div>
     <div class="kpi pc-count"><div class="label">PC 作品</div><div class="value">${formatNum(L.pcCount)}</div></div>
     <div class="kpi mobile-count"><div class="label">手游作品</div><div class="value">${formatNum(L.mobileCount)}</div></div>
     <div class="kpi zan"><div class="label">总热度</div><div class="value">${formatNum(L.totalZan)}</div></div>
     <div class="kpi delta"><div class="label">总涨幅 · 较 ${prevLabel}</div><div class="value delta-${deltaCls}">${deltaHtml}</div></div>
+    <div class="kpi delta"><div class="label">今日 ${L.ts ? formatShortTime(L.ts) : ""} vs 昨日</div><div class="value">${dayDeltaHtml}</div></div>
   `;
+}
+
+// —— 今日热度涨跌柱状图 ——
+let DAY_DELTA_STATE = {};
+function renderDayDelta() {
+  const games = state.latest.games || [];
+  // 涨幅榜：按 dayDelta 降序
+  const gains = [...games].filter((g) => g.dayDelta > 0).sort((a, b) => b.dayDelta - a.dayDelta).slice(0, 10);
+  // 跌幅榜：按 dayDelta 升序（负的最大）
+  const losses = [...games].filter((g) => g.dayDelta < 0).sort((a, b) => a.dayDelta - b.dayDelta).slice(0, 10);
+  const el = (id) => document.getElementById(id);
+  const info = el("dayDeltaInfo");
+  if (info && state.latest.tsYest) info.textContent = `对比基准：昨日 ${formatShortTime(state.latest.tsYest)}`;
+  drawHBar("topGainChart", gains, "#3ecf8e");
+  drawHBar("topLossChart", losses, "#f4645f");
+}
+function drawHBar(canvasId, items, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const names = items.map((g) => (g.name || "").replace(/-PC$/i, "").slice(0, 12)).reverse();
+  const vals = items.map((g) => g.dayDelta).reverse();
+  if (DAY_DELTA_STATE[canvasId]) DAY_DELTA_STATE[canvasId].destroy();
+  DAY_DELTA_STATE[canvasId] = new Chart(canvas.getContext("2d"), {
+    type: "bar",
+    data: { labels: names, datasets: [{ label: items.length ? (items[0].dayDelta > 0 ? "涨幅" : "跌幅") : "", data: vals, backgroundColor: items[0] && items[0].dayDelta > 0 ? "rgba(62,207,142,0.75)" : "rgba(244,100,95,0.75)", borderRadius: 4 }] },
+    options: {
+      indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: "rgba(128,128,128,0.12)" }, ticks: { color: "var(--muted,#8b98a8)", font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { color: "var(--text,#e6edf3)", font: { size: 11 } } },
+      },
+    },
+  });
 }
 
 // —— 榜单行 ——
@@ -410,6 +453,7 @@ async function refreshAll() {
   renderOverview();
   renderRanking();
   renderTopRanks();
+  renderDayDelta();
   renderTicker(latest);
   if (!state.trendName && latest.games[0]) {
     state.trendName = latest.games.sort((a, b) => b.zan - a.zan)[0].name;
