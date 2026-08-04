@@ -419,7 +419,16 @@ async function refreshAll() {
 }
 
 // —— 事件 ——
-$("#searchInput").addEventListener("input", (e) => { state.q = e.target.value; renderRanking(); });
+$("#searchInput").addEventListener("input", (e) => {
+  state.q = e.target.value;
+  renderRanking();
+  // 作品榜搜索埋点（防抖 800ms，仅记录非空关键词）
+  clearTimeout(window.__searchDebounce);
+  window.__searchDebounce = setTimeout(() => {
+    const q = (e.target.value || "").trim();
+    if (q) jhtSearch(q, "list");
+  }, 800);
+});
 $("#typeSelect").addEventListener("change", (e) => { state.type = e.target.value; renderRanking(); });
 $("#sortSelect").addEventListener("change", (e) => {
   const [sort, order] = $("#sortSelect").value.split(":");
@@ -439,6 +448,7 @@ $("#btnViewTrend").addEventListener("click", () => {
   renderTrend(name);
   renderRankTrend(name);
   closeSuggest();
+  jhtSearch(name, "trend");
 });
 
 // —— 作品名模糊搜索下拉 ——
@@ -491,6 +501,7 @@ function pickSuggest(it) {
   renderTrend(it.name);
   renderRankTrend(it.name);
   closeSuggest();
+  jhtSearch(it.base || it.name, "trend");
 }
 function closeSuggest() { suggestEl.classList.remove("open"); suggestEl.innerHTML = ""; suggestList = []; suggestActive = -1; }
 suggestInput.addEventListener("input", () => renderSuggest(suggestCandidates(suggestInput.value)));
@@ -563,6 +574,17 @@ function jhtPost(path, payload) {
       fetch(JHT_STATS_URLS[i] + path, { method: "POST", body: body, headers: { "Content-Type": "text/plain" }, keepalive: true }).catch(function () {});
     } catch (e) {}
   }
+}
+// 搜索埋点：记录用户搜索关键词（防抖去重：同词 3 秒内只记一次）
+var JHT_LAST_SEARCH = {};
+function jhtSearch(kw, source) {
+  kw = String(kw || "").trim();
+  if (!kw || kw.length > 60) return;
+  var k = source + "|" + kw;
+  var now = Date.now();
+  if (JHT_LAST_SEARCH[k] && now - JHT_LAST_SEARCH[k] < 3000) return;
+  JHT_LAST_SEARCH[k] = now;
+  jhtPost("/search", { kw: kw, source: source, ref: document.referrer || "", path: location.pathname });
 }
 (function () {
   try {
