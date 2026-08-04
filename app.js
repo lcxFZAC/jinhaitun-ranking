@@ -524,6 +524,14 @@ $("#btnVote").addEventListener("click", () => {
   const url = "https://act.3839.com/n/hykb/jinhaitun/phase1/pc/index.php";
   window.open(url, "_blank");
   setStatus("已打开投票页 · 登录后即可为把把博弈王投票", "ok");
+  // 点击埋点（记录投票按钮点击次数）
+  try {
+    fetch("https://jhtstats.duckdns.org/click", {
+      method: "POST",
+      body: JSON.stringify({ action: "vote", btn: "btnVote", ref: document.referrer || "", path: location.pathname }),
+      headers: { "Content-Type": "text/plain" }, keepalive: true,
+    }).catch(() => {});
+  } catch (e) {}
 });
 // 时间范围
 $("#rangeSeg").addEventListener("click", (e) => {
