@@ -498,3 +498,32 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   padding: 8px 14px; font-size: .82rem; cursor: pointer; font-weight: 600;
 }
 .btn-sm:hover { filter: brightness(1.08); }
+
+/* —— 榜单行紧凑化 + 作品缩略图 —— */
+.game-cell { display: flex; align-items: center; gap: 10px; }
+.thumb-cell {
+  width: 44px; height: 44px; flex: 0 0 44px;
+  border-radius: 10px; overflow: hidden;
+  background: var(--bg-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.thumb-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+th, td { padding: 7px 12px; } /* 缩小行距，替代原 10px */
+table { font-size: 0.85rem; }
+
+/* —— 顶部作品封面模糊背景层 —— */
+.cover-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-size: cover; background-position: center;
+  filter: blur(38px) brightness(0.42) saturate(1.15);
+  transform: scale(1.15);
+  opacity: 0.55;
+  transition: opacity .6s ease;
+}
+.cover-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(15,20,25,0.55), rgba(15,20,25,0.82));
+}
+[data-theme="light"] .cover-bg { filter: blur(38px) brightness(0.9) saturate(1.05); }
+[data-theme="light"] .cover-bg::after { background: linear-gradient(180deg, rgba(245,247,250,0.55), rgba(245,247,250,0.85)); }

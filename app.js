@@ -174,12 +174,27 @@ function findIdByName(name) {
   return ids.find((id) => state.series.meta[id].name === name) || ids[0] || null;
 }
 
+// —— 顶部作品封面模糊背景 ——
+function ensureCoverBg() {
+  let bg = document.querySelector(".cover-bg");
+  if (!bg) { bg = document.createElement("div"); bg.className = "cover-bg"; document.body.appendChild(bg); }
+  return bg;
+}
+function updateCoverBg(name) {
+  const bg = ensureCoverBg();
+  if (!state.latest || !name) { bg.style.backgroundImage = ""; bg.style.opacity = "0"; return; }
+  const g = state.latest.games.find((x) => x.name === name) || state.latest.games.find((x) => (x.name || "").replace(/-PC$/i, "") === name);
+  if (g && g.img) { bg.style.backgroundImage = `url("${escapeHtml(g.img)}")`; bg.style.opacity = "0.55"; }
+  else { bg.style.backgroundImage = ""; bg.style.opacity = "0"; }
+}
+
 // —— 热度走势 ——
 function renderTrend(name) {
   if (!name) return;
   if (state.trendChart) state.trendChart.destroy();
   const id = findIdByName(name);
   $("#trendTitle").textContent = `${name} · 热度走势`;
+  updateCoverBg(name);
   const idxs = currentRangeIdxs();
   const ts = state.series.ts;
   const labels = sliceBy(ts, idxs).map(formatShortTime);
