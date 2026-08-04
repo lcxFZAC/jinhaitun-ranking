@@ -646,7 +646,8 @@ $("#btnApplyRange").addEventListener("click", () => {
 
 initTheme();
 refreshAll().catch((err) => setStatus(err.message, "err"));
-setInterval(() => refreshAll().catch(console.error), 60_000);
+// 已移除 60 秒自动刷新（改为手动交互触发），如需恢复自动刷新可在此加：
+// setInterval(() => refreshAll().catch(console.error), 60_000);
 
 // —— 访问打点（方案B 统计服务）——
 // 用 fetch + text/plain：text/plain 是“简单请求”，跨域不触发预检(OPTIONS)，最稳
