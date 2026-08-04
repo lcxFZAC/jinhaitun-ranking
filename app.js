@@ -261,6 +261,8 @@ function renderTrendStat(name) {
   const base = (name || "").replace(/-PC$/i, "").trim();
   // 同作品所有版本（手游 + PC，若有）
   const versions = findAllByIdsByName(name);
+  // 固定顺序：手游在上、PC 在下（避免 PC/手游位置随机变化）
+  versions.sort((a, b) => (a.isPC ? 1 : 0) - (b.isPC ? 1 : 0));
   const lg = state.latest.games || [];
   const R = state.ranks;
   const blocks = [];
