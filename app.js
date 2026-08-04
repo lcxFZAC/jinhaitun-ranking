@@ -547,14 +547,12 @@ refreshAll().catch((err) => setStatus(err.message, "err"));
 setInterval(() => refreshAll().catch(console.error), 60_000);
 
 // —— 访问打点（方案B 统计服务）——
+// 用 fetch + text/plain：text/plain 是“简单请求”，跨域不触发预检(OPTIONS)，最稳
 (function () {
   try {
     const payload = { ua: navigator.userAgent, ref: document.referrer || "", path: location.pathname };
     const url = "https://jhtstats.duckdns.org/hit";
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, new Blob([JSON.stringify(payload)], { type: "application/json" }));
-    } else {
-      fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
-    }
+    // 主路径：fetch + text/plain（简单请求，跨域直发，避免预检）
+    fetch(url, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain" }, keepalive: true }).catch(() => {});
   } catch (e) { /* 打点失败不影响页面 */ }
 })();
