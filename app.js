@@ -507,6 +507,7 @@ $("#totalBody").addEventListener("click", (e) => {
     renderTrend(nm);
     renderRankTrend(nm);
     scrollToTrend();
+    jhtView(nm, "list");
     return;
   }
   const link = e.target.closest(".trend-link");
@@ -514,6 +515,7 @@ $("#totalBody").addEventListener("click", (e) => {
   state.trendName = link.textContent.trim();
   renderTrend(state.trendName);
   renderRankTrend(state.trendName);
+  jhtView(state.trendName, "name");
 });
 $("#btnViewTrend").addEventListener("click", () => {
   const name = $("#trendSearch").value.trim();
@@ -523,6 +525,7 @@ $("#btnViewTrend").addEventListener("click", () => {
   renderRankTrend(name);
   closeSuggest();
   jhtSearch(name, "trend");
+  jhtView(name, "btn");
 });
 
 // —— 作品名模糊搜索下拉 ——
@@ -576,6 +579,7 @@ function pickSuggest(it) {
   renderRankTrend(it.name);
   closeSuggest();
   jhtSearch(it.base || it.name, "trend");
+  jhtView(it.name, "suggest");
 }
 function closeSuggest() { suggestEl.classList.remove("open"); suggestEl.innerHTML = ""; suggestList = []; suggestActive = -1; }
 suggestInput.addEventListener("input", () => renderSuggest(suggestCandidates(suggestInput.value)));
@@ -673,6 +677,17 @@ function jhtSearch(kw, source) {
   if (JHT_LAST_SEARCH[k] && now - JHT_LAST_SEARCH[k] < 3000) return;
   JHT_LAST_SEARCH[k] = now;
   jhtPost("/search", { kw: kw, source: source, ref: document.referrer || "", path: location.pathname });
+}
+// 查看趋势埋点：记录用户查看了哪个作品的趋势（防抖去重：同作品 3 秒内只记一次）
+var JHT_LAST_VIEW = {};
+function jhtView(name, source) {
+  name = String(name || "").trim();
+  if (!name || name.length > 80) return;
+  var k = source + "|" + name;
+  var now = Date.now();
+  if (JHT_LAST_VIEW[k] && now - JHT_LAST_VIEW[k] < 3000) return;
+  JHT_LAST_VIEW[k] = now;
+  jhtPost("/view", { name: name, source: source, ref: document.referrer || "", path: location.pathname });
 }
 (function () {
   try {
