@@ -2,8 +2,9 @@ name: Deploy Jinhaitun Pages
 
 on:
   schedule:
-    # 每小时抓取一次
-    - cron: '17 * * * *'
+    # 每半小时抓取一次（北京 :05 和 :35），归到最近整点，确保不漏整点数据
+    # :05 首抓当前整点，:35 补抓（防 :05 失败/延迟导致跳点）
+    - cron: '5,35 * * * *'
   workflow_dispatch:
 
 permissions:
