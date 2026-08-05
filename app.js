@@ -388,6 +388,60 @@ function renderTopRanks() {
   renderTopChart("topPcChart", "pcRanks", "pcTopCount");
 }
 
+// —— 涨幅榜单：今日涨幅 Top10 + 上个时段涨幅 Top10（仅正涨幅，横向条形图，左侧图标+名字）——
+function renderGain() {
+  const latest = state.latest;
+  if (!latest || !Array.isArray(latest.games)) return;
+  const games = latest.games;
+
+  // 今日涨幅 = zan - zanYest (dayDelta)，仅正
+  const today = games
+    .map((g) => ({
+      name: g.name, icon: g.icon, img: g.img,
+      v: (Number(g.zan) || 0) - (Number(g.zanYest) || 0),
+    }))
+    .filter((x) => x.v > 0)
+    .sort((a, b) => b.v - a.v)
+    .slice(0, 10);
+
+  // 上个时段涨幅 = zan - zanPre，仅正
+  const prev = games
+    .map((g) => ({
+      name: g.name, icon: g.icon, img: g.img,
+      v: (Number(g.zan) || 0) - (Number(g.zanPre) || 0),
+    }))
+    .filter((x) => x.v > 0)
+    .sort((a, b) => b.v - a.v)
+    .slice(0, 10);
+
+  const todayEl = $("#gainToday");
+  const prevEl = $("#gainPrev");
+  if (todayEl) todayEl.innerHTML = gainBars(today);
+  if (prevEl) prevEl.innerHTML = gainBars(prev);
+}
+
+function gainBars(list) {
+  if (!list.length) return `<div class="gain-empty">暂无正涨幅数据</div>`;
+  const max = list[0].v || 1;
+  return list
+    .map((g, i) => {
+      const pct = Math.max(6, Math.round((g.v / max) * 100));
+      const icon = g.icon || g.img || "";
+      const thumb = icon
+        ? `<img class="gain-icon" src="${escapeHtml(icon)}" loading="lazy" alt="">`
+        : `<span class="gain-icon gain-ph">🎮</span>`;
+      return (
+        `<div class="gain-row">` +
+          `<span class="gain-rank">${i + 1}</span>` +
+          `<span class="gain-name" title="${escapeHtml(g.name)}">${thumb}<span class="gain-label">${escapeHtml(g.name)}</span></span>` +
+          `<span class="gain-track"><span class="gain-bar" style="width:${pct}%"></span></span>` +
+          `<span class="gain-val">+${formatNum(g.v)}</span>` +
+        `</div>`
+      );
+    })
+    .join("");
+}
+
 // —— 顶部轮播快讯：播报上一时段排名提升的作品 ——
 function renderTicker(latest) {
   const track = $("#tickerTrack");
@@ -474,6 +528,7 @@ async function refreshAll() {
   renderOverview();
   renderRanking();
   renderTopRanks();
+  renderGain();
   renderTicker(latest);
   if (!state.trendName && latest.games[0]) {
     state.trendName = latest.games.sort((a, b) => b.zan - a.zan)[0].name;

@@ -858,3 +858,40 @@ table { font-size: 0.95rem; }
 @media (max-width: 600px) {
   .btn-view-trend { padding: 4px 8px; font-size: 0.7rem; }
 }
+
+/* —— 涨幅榜单（横向条形图，左侧图标+名字） —— */
+.gain-section { margin-bottom: 18px; }
+.gain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gain-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.gain-empty { color: var(--muted); font-size: 0.85rem; padding: 12px 0; text-align: center; }
+.gain-row {
+  display: grid;
+  grid-template-columns: 22px minmax(96px, 1.1fr) minmax(80px, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+.gain-row:hover { background: var(--bg-soft); }
+.gain-rank { color: var(--muted); font-size: 0.8rem; text-align: center; font-variant-numeric: tabular-nums; }
+.gain-name { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.gain-icon { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: var(--bg-soft); }
+.gain-ph { display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.gain-label { font-size: 0.82rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gain-track { height: 12px; background: var(--bg-soft); border-radius: 7px; overflow: hidden; }
+.gain-bar {
+  display: block; height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgba(62,207,142,0.55), var(--accent));
+  min-width: 4px;
+}
+.gain-val { color: var(--accent); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 600px) {
+  .gain-grid { grid-template-columns: 1fr; }
+  .gain-row { grid-template-columns: 18px minmax(84px, 1fr) minmax(60px, 1fr) auto; gap: 6px; }
+  .gain-icon { width: 22px; height: 22px; }
+  .gain-label { font-size: 0.76rem; }
+  .gain-val { font-size: 0.76rem; }
+}
