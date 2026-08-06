@@ -284,6 +284,20 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .name-cell { display: flex; flex-direction: column; gap: 2px; }
 .name-cell strong { font-weight: 600; }
 .name-cell span { color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
+/* —— 作品评分徽章（有评分才显示） —— */
+.score-chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #f0b429;
+  background: rgba(240, 180, 41, 0.12);
+  border: 1px solid rgba(240, 180, 41, 0.25);
+  vertical-align: middle;
+}
 .heat {
   font-weight: 700;
   color: var(--accent-2);
