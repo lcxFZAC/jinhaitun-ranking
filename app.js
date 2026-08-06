@@ -531,7 +531,8 @@ async function refreshAll() {
   renderGain();
   renderTicker(latest);
   if (!state.trendName && latest.games[0]) {
-    state.trendName = latest.games.sort((a, b) => b.zan - a.zan)[0].name;
+    // 默认走势固定为「把把博弈王」（推荐位榜首作品）
+    state.trendName = "把把博弈王";
   }
   renderTrend(state.trendName);
   renderRankTrend(state.trendName);
