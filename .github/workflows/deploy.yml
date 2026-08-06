@@ -43,18 +43,33 @@ jobs:
 
       - name: Commit updated data
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/history.json data/latest.json data/series.json data/ranks.json
-          git diff --cached --quiet || git commit -m "chore(data): update snapshots $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(data): update snapshots $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # 功能提交 / 并发 run 可能抢先推到 main，rebase 后重试
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Push conflict, retry ${attempt}..."
+            sleep $((attempt * 3))
+          done
+          echo "Failed to push after retries"
+          exit 1
 
-      # 前端只用 latest / series / ranks；history.json ~15MB，放进 Pages 产物会拖垮 deploy-pages
+      # 前端只需静态页 + latest/series/ranks/enrich；history.json ~15MB 勿进 Pages
       - name: Prepare site
         run: |
           mkdir -p _site/data
           cp index.html styles.css app.js _site/
-          cp data/latest.json data/series.json data/ranks.json data/enrich.json _site/data/
+          cp data/latest.json data/series.json data/ranks.json _site/data/
+          if [ -f data/enrich.json ]; then cp data/enrich.json _site/data/; fi
           touch _site/.nojekyll
 
       - name: Upload site bundle
