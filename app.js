@@ -15,6 +15,7 @@ const state = {
   latest: null,
   series: null,
   ranks: null,
+  enrich: {},  // 作品档案：评分 / 打分人数 / 评价数 / 开发团队
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -37,8 +38,15 @@ function formatShortTime(iso) {
   const p = (n) => String(n).padStart(2, "0");
   return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:00`;
 }
-function escapeHtml(str) {
-  return String(str ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+function escapeHtml(str) {  return String(str ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+// 作品评分徽章：有评分(score>0)才显示，无评分不显示
+function scoreBadge(g) {
+  const e = (state.enrich || {})[String(g.id)];
+  const s = e && Number(e.score);
+  if (!s || !(s > 0)) return "";
+  const pj = Number(e.raters) > 0 ? ` · ${Number(e.raters).toLocaleString("zh-CN")} 人打分` : "";
+  return `<span class="score-chip" title="好游快爆评分${pj}">★ ${s.toFixed(1)}</span>`;
 }
 function setStatus(text, kind = "") {
   const el = $("#statusPill");
@@ -147,7 +155,7 @@ function renderRows(games) {
           <div class="game-cell">
             <div class="thumb-cell">${g.img ? `<img src="${escapeHtml(g.img)}" loading="lazy">` : "🎮"}</div>
             <div class="name-cell">
-              <strong><a href="javascript:;" class="game-link trend-link" title="查看热度/排名走势">${escapeHtml(g.name)}</a></strong>
+              <strong><a href="javascript:;" class="game-link trend-link" title="查看热度/排名走势">${escapeHtml(g.name)}</a></strong>${scoreBadge(g)}
               <span>${escapeHtml(g.intro || "暂无简介")} · ID ${escapeHtml(g.gid || "—")}</span>
             </div>
           </div>
@@ -520,6 +528,11 @@ async function refreshAll() {
     loadJSON("data/latest.json"), loadJSON("data/series.json"), loadJSON("data/ranks.json"),
   ]);
   state.latest = latest; state.series = series; state.ranks = ranks;
+  // 作品档案（评分/团队）为可选数据，没抓到不影响主界面
+  try {
+    const e = await loadJSON("data/enrich.json");
+    state.enrich = (e && e.games) || {};
+  } catch (_) { state.enrich = {}; }
   const sliced = currentRangeIdxs();
   const shown = sliced.length;
   setStatus(`就绪 · ${formatTime(latest.ts)} 更新`, "ok");
