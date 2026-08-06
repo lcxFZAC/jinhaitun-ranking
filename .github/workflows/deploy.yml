@@ -12,16 +12,13 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  crawl-and-deploy:
+  # 抓取 / 构建 / 回写数据：排队不互杀，避免定时任务被手动重跑打断
+  update-data:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: jinhaitun-crawl
+      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,17 +45,49 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history.json data/latest.json data/series.json
+          git add data/history.json data/latest.json data/series.json data/ranks.json
           git diff --cached --quiet || git commit -m "chore(data): update snapshots $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
+
+      # 前端只用 latest / series / ranks；history.json ~15MB，放进 Pages 产物会拖垮 deploy-pages
+      - name: Prepare site
+        run: |
+          mkdir -p _site/data
+          cp index.html styles.css app.js _site/
+          cp data/latest.json data/series.json data/ranks.json _site/data/
+          touch _site/.nojekyll
+
+      - name: Upload site bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+          retention-days: 1
+
+  # 部署可取消旧任务：避免 deployment_queued 堆满后卡死 10 分钟超时
+  deploy:
+    needs: update-data
+    runs-on: ubuntu-latest
+    concurrency:
+      group: jinhaitun-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download site bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: _site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
