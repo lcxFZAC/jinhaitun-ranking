@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p _site/data
           cp index.html styles.css app.js _site/
-          cp data/latest.json data/series.json data/ranks.json _site/data/
+          cp data/latest.json data/series.json data/ranks.json data/enrich.json _site/data/
           touch _site/.nojekyll
 
       - name: Upload site bundle
