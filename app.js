@@ -40,13 +40,24 @@ function formatShortTime(iso) {
 }
 function escapeHtml(str) {  return String(str ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
-// 作品评分徽章：有评分(score>0)才显示，无评分不显示
+// 作品详情页链接：优先用 enrich.url，否则用 gid 拼接 3839 地址
+function detailLink(g) {
+  const name = escapeHtml(g.name);
+  let url = "";
+  const e = (state.enrich || {})[String(g.id)];
+  if (e && e.url) url = e.url;
+  else if (g.gid) url = `https://www.3839.com/a/${encodeURIComponent(g.gid)}.htm`;
+  if (!url) return `<span class="game-link-static">${name}</span>`;
+  return `<a class="game-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="打开游戏详情页">${name}</a>`;
+}
+// 作品评分徽章：有评分(score>0)才显示，无评分不显示（统一等宽，长短一致）
 function scoreBadge(g) {
   const e = (state.enrich || {})[String(g.id)];
   const s = e && Number(e.score);
   if (!s || !(s > 0)) return "";
-  const pj = Number(e.raters) > 0 ? ` · ${Number(e.raters).toLocaleString("zh-CN")} 人打分` : "";
-  return `<span class="score-chip" title="好游快爆评分${pj}">★ ${s.toFixed(1)}</span>`;
+  const raters = Number(e.raters) > 0 ? Number(e.raters).toLocaleString("zh-CN") : "";
+  const tip = raters ? `好游快爆评分 ${s.toFixed(1)} · ${raters} 人打分` : `好游快爆评分 ${s.toFixed(1)}`;
+  return `<span class="score-chip" title="${tip}"><span class="score-star">★</span><span class="score-num">${s.toFixed(1)}</span>${raters ? `<span class="score-count">${raters}</span>` : ""}</span>`;
 }
 function setStatus(text, kind = "") {
   const el = $("#statusPill");
@@ -155,7 +166,7 @@ function renderRows(games) {
           <div class="game-cell">
             <div class="thumb-cell">${g.img ? `<img src="${escapeHtml(g.img)}" loading="lazy">` : "🎮"}</div>
             <div class="name-cell">
-              <strong><a href="javascript:;" class="game-link trend-link" title="查看热度/排名走势">${escapeHtml(g.name)}</a></strong>${scoreBadge(g)}
+              <strong>${detailLink(g)}</strong>${scoreBadge(g)}
               <span>${escapeHtml(g.intro || "暂无简介")} · ID ${escapeHtml(g.gid || "—")}</span>
             </div>
           </div>
@@ -163,7 +174,7 @@ function renderRows(games) {
         <td>${(g.types || []).join(" / ")}</td>
         <td class="num zan-cell">${formatNum(g.zan)}</td>
         <td class="num">${diffHtml}</td>
-        <td><button type="button" class="btn-view-trend trend-link" data-name="${escapeHtml(g.name)}" title="查看热度/排名走势">查看走势</button></td>
+        <td><button type="button" class="btn-view-trend" data-name="${escapeHtml(g.name)}" title="查看热度/排名走势">查看走势</button></td>
       </tr>`;
   }).join("");
 }
@@ -577,14 +588,7 @@ $("#totalBody").addEventListener("click", (e) => {
     renderRankTrend(nm);
     scrollToTrend();
     jhtView(nm, "list");
-    return;
   }
-  const link = e.target.closest(".trend-link");
-  if (!link) return;
-  state.trendName = link.textContent.trim();
-  renderTrend(state.trendName);
-  renderRankTrend(state.trendName);
-  jhtView(state.trendName, "name");
 });
 $("#btnViewTrend").addEventListener("click", () => {
   const name = $("#trendSearch").value.trim();

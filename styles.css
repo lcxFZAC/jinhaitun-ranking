@@ -284,19 +284,36 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .name-cell { display: flex; flex-direction: column; gap: 2px; }
 .name-cell strong { font-weight: 600; }
 .name-cell span { color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
-/* —— 作品评分徽章（有评分才显示） —— */
+/* —— 作品评分徽章（有评分才显示，统一等宽徽章） —— */
 .score-chip {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-left: 8px;
-  padding: 1px 8px;
+  padding: 2px 8px;
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: #f0b429;
   background: rgba(240, 180, 41, 0.12);
-  border: 1px solid rgba(240, 180, 41, 0.25);
+  border: 1px solid rgba(240, 180, 41, 0.28);
   vertical-align: middle;
+  white-space: nowrap;
+  line-height: 1;
+}
+.score-chip .score-star { font-size: 0.78rem; }
+.score-chip .score-num {
+  min-width: 2.6em;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.score-chip .score-count {
+  color: rgba(240, 180, 41, 0.85);
+  font-weight: 600;
+  padding-left: 5px;
+  margin-left: 1px;
+  border-left: 1px solid rgba(240, 180, 41, 0.35);
 }
 .heat {
   font-weight: 700;
@@ -374,6 +391,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .row-baba .game-link { color: var(--accent); }
 .row-baba .game-link:hover { filter: brightness(1.25); }
+.game-link-static { color: var(--muted); cursor: default; }
 
 /* —— 「看它」按钮 —— */
 .btn-watch {
