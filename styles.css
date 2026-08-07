@@ -282,7 +282,7 @@ th {
 }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .name-cell { display: flex; flex-direction: column; gap: 2px; }
-.name-cell strong { font-weight: 600; display: inline-flex; align-items: center; flex-wrap: wrap; max-width: 100%; }
+.name-cell strong { font-weight: 600; display: inline-flex; align-items: center; flex-wrap: nowrap; max-width: 100%; min-width: 0; }
 .name-cell span { color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
 /* —— 作品评分徽章（有评分才显示，统一等宽徽章） —— */
 .score-chip {
