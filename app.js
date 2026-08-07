@@ -50,11 +50,24 @@ function detailLink(g) {
   if (!url) return `<span class="game-link-static">${name}</span>`;
   return `<a class="game-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="打开游戏详情页">${name}</a>`;
 }
-// 作品评分徽章：有评分(score>0)才显示，无评分不显示（统一等宽，长短一致）
+// 作品评分徽章：有评分才显示。优先用 enrich.score，缺失时用 starDist 加权平均回退计算
 function scoreBadge(g) {
   const e = (state.enrich || {})[String(g.id)];
-  const s = e && Number(e.score);
-  if (!s || !(s > 0)) return "";
+  if (!e) return "";
+  // 评分：优先 score 字段，否则由星评分布 starDist 计算（5分制加权均值 × 2 = 10分制）
+  let s = Number(e.score);
+  if (!(s > 0)) {
+    const sd = e.starDist;
+    if (!Array.isArray(sd) || !sd.length) return "";
+    let sum = 0, total = 0;
+    for (let i = 0; i < sd.length; i++) {
+      const n = Number(sd[i]);
+      if (n > 0) { sum += n * (i + 1); total += n; }
+    }
+    if (!total) return "";
+    s = (sum / total) * 2; // 5分制 → 10分制
+  }
+  if (!(s > 0)) return "";
   const raters = Number(e.raters) > 0 ? Number(e.raters).toLocaleString("zh-CN") : "";
   const tip = raters ? `好游快爆评分 ${s.toFixed(1)} · ${raters} 人打分` : `好游快爆评分 ${s.toFixed(1)}`;
   return `<span class="score-chip" title="${tip}"><span class="score-star">★</span><span class="score-num">${s.toFixed(1)}</span>${raters ? `<span class="score-count">${raters}</span>` : ""}</span>`;
