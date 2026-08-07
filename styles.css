@@ -288,9 +288,11 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .score-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   margin-left: 8px;
   padding: 2px 8px;
+  width: 6.4em;            /* 固定宽度：所有评分徽章背景长短一致 */
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -301,21 +303,25 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   vertical-align: middle;
   white-space: nowrap;
   line-height: 1;
+  box-sizing: border-box;
 }
-.score-chip .score-star { font-size: 0.78rem; }
+.score-chip .score-star { font-size: 0.78rem; flex: 0 0 auto; }
 .score-chip .score-num {
-  min-width: 2.6em;
+  min-width: 2.4em;
   text-align: center;
   letter-spacing: 0.02em;
+  flex: 0 0 auto;
 }
 .score-chip .score-count {
   color: rgba(240, 180, 41, 0.85);
   font-weight: 600;
-  font-variant-numeric: normal; /* 按实际人数宽度自适应，不用等宽 */
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip;
   padding-left: 5px;
   margin-left: 1px;
   border-left: 1px solid rgba(240, 180, 41, 0.35);
-  width: fit-content;
 }
 .heat {
   font-weight: 700;
