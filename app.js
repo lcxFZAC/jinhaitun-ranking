@@ -16,6 +16,7 @@ const state = {
   series: null,
   ranks: null,
   enrich: {},  // 作品档案：评分 / 打分人数 / 评价数 / 开发团队
+  scores: {},  // 真实评分（来自 3839 评论接口 data/scores.json，与游戏页一致）
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -50,10 +51,14 @@ function detailLink(g) {
   if (!url) return `<span class="game-link-static">${name}</span>`;
   return `<a class="game-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="打开游戏详情页">${name}</a>`;
 }
-// 作品评分徽章：按方案A禁用——3839 网页端这些游戏均显示"暂无评分"（评分区隐藏），
-// 为避免展示与用户页面不一致/疑似捏造的分数，评分徽章不再渲染。如需恢复，改写此函数即可。
+// 作品评分徽章：从 data/scores.json 读取 3839 评论接口的真实评分（与游戏详情页一致），有分才显示
 function scoreBadge(g) {
-  return "";
+  const e = (state.scores || {})[String(g.id)];
+  const s = e && Number(e.score);
+  if (!s || !(s > 0)) return "";
+  const raters = Number(e.raters) > 0 ? Number(e.raters).toLocaleString("zh-CN") : "";
+  const tip = raters ? `好游快爆评分 ${s.toFixed(1)} · ${raters} 人打分` : `好游快爆评分 ${s.toFixed(1)}`;
+  return `<span class="score-chip" title="${tip}"><span class="score-star">★</span><span class="score-num">${s.toFixed(1)}</span>${raters ? `<span class="score-count">${raters}</span>` : ""}</span>`;
 }
 function setStatus(text, kind = "") {
   const el = $("#statusPill");
@@ -540,6 +545,11 @@ async function refreshAll() {
     const e = await loadJSON("data/enrich.json");
     state.enrich = (e && e.games) || {};
   } catch (_) { state.enrich = {}; }
+  // 真实评分（3839 评论接口抓取），与游戏详情页显示一致；可选
+  try {
+    const sc = await loadJSON("data/scores.json");
+    state.scores = (sc && sc.games) || {};
+  } catch (_) { state.scores = {}; }
   const sliced = currentRangeIdxs();
   const shown = sliced.length;
   setStatus(`就绪 · ${formatTime(latest.ts)} 更新`, "ok");
