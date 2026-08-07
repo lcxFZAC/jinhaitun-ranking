@@ -70,6 +70,7 @@ jobs:
           cp index.html styles.css app.js _site/
           cp data/latest.json data/series.json data/ranks.json _site/data/
           if [ -f data/enrich.json ]; then cp data/enrich.json _site/data/; fi
+          if [ -f data/scores.json ]; then cp data/scores.json _site/data/; fi
           touch _site/.nojekyll
 
       - name: Upload site bundle
