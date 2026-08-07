@@ -50,14 +50,10 @@ function detailLink(g) {
   if (!url) return `<span class="game-link-static">${name}</span>`;
   return `<a class="game-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="打开游戏详情页">${name}</a>`;
 }
-// 作品评分徽章：仅当 enrich.score 有有效值时显示（不自行计算/捏造）
+// 作品评分徽章：按方案A禁用——3839 网页端这些游戏均显示"暂无评分"（评分区隐藏），
+// 为避免展示与用户页面不一致/疑似捏造的分数，评分徽章不再渲染。如需恢复，改写此函数即可。
 function scoreBadge(g) {
-  const e = (state.enrich || {})[String(g.id)];
-  const s = e && Number(e.score);
-  if (!s || !(s > 0)) return "";
-  const raters = Number(e.raters) > 0 ? Number(e.raters).toLocaleString("zh-CN") : "";
-  const tip = raters ? `好游快爆评分 ${s.toFixed(1)} · ${raters} 人打分` : `好游快爆评分 ${s.toFixed(1)}`;
-  return `<span class="score-chip" title="${tip}"><span class="score-star">★</span><span class="score-num">${s.toFixed(1)}</span>${raters ? `<span class="score-count">${raters}</span>` : ""}</span>`;
+  return "";
 }
 function setStatus(text, kind = "") {
   const el = $("#statusPill");
