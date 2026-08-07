@@ -311,9 +311,11 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .score-chip .score-count {
   color: rgba(240, 180, 41, 0.85);
   font-weight: 600;
+  font-variant-numeric: normal; /* 按实际人数宽度自适应，不用等宽 */
   padding-left: 5px;
   margin-left: 1px;
   border-left: 1px solid rgba(240, 180, 41, 0.35);
+  width: fit-content;
 }
 .heat {
   font-weight: 700;
